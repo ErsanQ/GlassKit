@@ -1,25 +1,20 @@
 import SwiftUI
 
-/// A view modifier that applies a glassmorphism effect.
-@MainActor
-public struct GlassModifier: ViewModifier {
-    let blurRadius: CGFloat
-    let opacity: CGFloat
-    
-    public func body(content: Content) -> some View {
-        content
-            .background(
-                GlassView(blurRadius: blurRadius, opacity: opacity) {
-                    EmptyView()
-                }
-            )
+public extension View {
+    /// Applies a premium glassmorphic background to the view.
+    ///
+    /// - Returns: A view wrapped with a `GlassSurface` background.
+    @MainActor
+    func glassBackground() -> some View {
+        self.modifier(GlassModifier())
     }
 }
 
-public extension View {
-    /// Applies a glassmorphism effect to the view.
-    @MainActor
-    func glass(blurRadius: CGFloat = 20, opacity: CGFloat = 0.2) -> some View {
-        modifier(GlassModifier(blurRadius: blurRadius, opacity: opacity))
+/// An internal ViewModifier that applies the `GlassSurface` style.
+@MainActor
+private struct GlassModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .background(GlassSurface())
     }
 }

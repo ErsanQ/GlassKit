@@ -1,28 +1,34 @@
 import SwiftUI
 
-/// A view that applies a glassmorphism effect to its content.
+/// A view that renders a premium frosted glass effect.
+///
+/// `GlassSurface` uses system blur effects (where available) and semi-transparent
+/// white fills to create a professional glassmorphism look. It handles platform
+/// differences by falling back to high-opacity shapes on platforms without native blurs.
+///
+/// ## Usage
+/// ```swift
+/// GlassSurface()
+///     .frame(width: 300, height: 200)
+///     .overlay(Text("Glass Card"))
+/// ```
 @MainActor
-public struct GlassView<Content: View>: View {
-    private let content: Content
-    private let blurRadius: CGFloat
-    private let opacity: CGFloat
+public struct GlassSurface: View {
     
-    public init(blurRadius: CGFloat = 20, opacity: CGFloat = 0.2, @ViewBuilder content: () -> Content) {
-        self.blurRadius = blurRadius
-        self.opacity = opacity
-        self.content = content()
-    }
+    /// Creates a new GlassSurface instance.
+    public init() {}
     
     public var body: some View {
         ZStack {
-            #if os(iOS)
-            VisualEffectView(effect: UIBlurEffect(style: .systemThinMaterialDark))
-                .opacity(opacity)
+            #if os(iOS) || os(tvOS) || os(visionOS)
+            VisualEffectView(effect: UIBlurEffect(style: .systemThinMaterial))
+            #elseif os(macOS)
+            VisualEffectView() // NSVisualEffectView wrapper
             #else
-            Color.black.opacity(opacity).blur(radius: blurRadius)
+            Color.white.opacity(0.1)
             #endif
             
-            content
+            Color.white.opacity(0.05)
         }
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(
@@ -32,11 +38,26 @@ public struct GlassView<Content: View>: View {
     }
 }
 
-#if os(iOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
+/// An internal UIViewRepresentable that wraps `UIVisualEffectView` for SwiftUI.
 @MainActor
 struct VisualEffectView: UIViewRepresentable {
     var effect: UIVisualEffect?
     func makeUIView(context: Context) -> UIVisualEffectView { UIVisualEffectView() }
     func updateUIView(_ uiView: UIVisualEffectView, context: Context) { uiView.effect = effect }
+}
+#endif
+
+#if os(macOS)
+/// An internal NSViewRepresentable that wraps `NSVisualEffectView` for SwiftUI.
+@MainActor
+struct VisualEffectView: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.blendingMode = .withinWindow
+        view.state = .active
+        return view
+    }
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }
 #endif
