@@ -1,72 +1,42 @@
 import SwiftUI
 
-/// A component that renders a stylized glass-like container.
-public struct GlassCard<Content: View>: View {
+/// A view that applies a glassmorphism effect to its content.
+@MainActor
+public struct GlassView<Content: View>: View {
     private let content: Content
-    private let cornerRadius: CGFloat
+    private let blurRadius: CGFloat
+    private let opacity: CGFloat
     
-    public init(cornerRadius: CGFloat = 24, @ViewBuilder content: () -> Content) {
-        self.cornerRadius = cornerRadius
+    public init(blurRadius: CGFloat = 20, opacity: CGFloat = 0.2, @ViewBuilder content: () -> Content) {
+        self.blurRadius = blurRadius
+        self.opacity = opacity
         self.content = content()
     }
     
     public var body: some View {
-        content
-            .glass(cornerRadius: cornerRadius)
-    }
-}
-
-/// A button styled with glassmorphism interaction.
-public struct GlassButton: View {
-    let title: String
-    let action: () -> Void
-    
-    public init(_ title: String, action: @escaping () -> Void) {
-        self.title = title
-        self.action = action
-    }
-    
-    public var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .glass(cornerRadius: 16)
-        }
-        .scaleEffect(1.0)
-        .transition(.scale)
-    }
-}
-
-/// A colorful gradient background for glassmorphism demonstration.
-public struct GlassBackground: View {
-    public init() {}
-    public var body: some View {
         ZStack {
             #if os(iOS)
-            Circle()
-                .fill(Color.blue.opacity(0.8))
-                .frame(width: 400, height: 400)
-                .offset(x: -150, y: -250)
-                .blur(radius: 80)
-            
-            Circle()
-                .fill(Color.purple.opacity(0.6))
-                .frame(width: 350, height: 350)
-                .offset(x: 150, y: 300)
-                .blur(radius: 60)
-            
-            Circle()
-                .fill(Color.pink.opacity(0.5))
-                .frame(width: 300, height: 300)
-                .offset(x: -50, y: 100)
-                .blur(radius: 100)
+            VisualEffectView(effect: UIBlurEffect(style: .systemThinMaterialDark))
+                .opacity(opacity)
             #else
-            LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
+            Color.black.opacity(opacity).blur(radius: blurRadius)
             #endif
+            
+            content
         }
-        .ignoresSafeArea()
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
     }
 }
+
+#if os(iOS)
+@MainActor
+struct VisualEffectView: UIViewRepresentable {
+    var effect: UIVisualEffect?
+    func makeUIView(context: Context) -> UIVisualEffectView { UIVisualEffectView() }
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) { uiView.effect = effect }
+}
+#endif

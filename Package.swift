@@ -3,9 +3,12 @@ import PackageDescription
 
 let package = Package(
     name: "GlassKit",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v14),
-        .macOS(.v11)
+        .macOS(.v11),
+        .tvOS(.v14),
+        .watchOS(.v7)
     ],
     products: [
         .library(
