@@ -1,3 +1,4 @@
+#if canImport(SwiftUI)
 import SwiftUI
 
 /// A view that renders a premium frosted glass effect.
@@ -60,4 +61,5 @@ struct VisualEffectView: NSViewRepresentable {
     }
     func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }
+#endif
 #endif

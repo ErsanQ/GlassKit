@@ -21,6 +21,7 @@ let package = Package(
         .target(
             name: "GlassKit",
             dependencies: [],
-            path: "Sources/GlassKit"),
+            path: "Sources/GlassKit",
+            exclude: ["Examples"]),
     ]
 )

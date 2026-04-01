@@ -1,3 +1,4 @@
+#if canImport(SwiftUI)
 import SwiftUI
 import GlassKit
 
@@ -88,3 +89,4 @@ struct UserInfo: View {
 #Preview {
     GlassExampleView()
 }
+#endif

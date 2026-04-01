@@ -1,3 +1,4 @@
+#if canImport(SwiftUI)
 import SwiftUI
 
 public extension View {
@@ -18,3 +19,4 @@ private struct GlassModifier: ViewModifier {
             .background(GlassSurface())
     }
 }
+#endif
